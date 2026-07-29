@@ -1,0 +1,11 @@
+{
+  "SampleRate": 44100,
+  "Channels": 2,
+  "Deadzone": 0.05,
+  "BaselineAmp": 0.08,
+  "TopAmp": 0.16,
+  "AmpSmoothing": 0.9,
+  "InvertAxis": false,
+  "ResponseCurve": 1.8,
+  "DefaultAxisName": "RotationX"
+}

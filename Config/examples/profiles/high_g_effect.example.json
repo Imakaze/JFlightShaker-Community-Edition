@@ -1,0 +1,4 @@
+{
+  "DefaultActivationThreshold": 0.65,
+  "Hysteresis": 0.035
+}

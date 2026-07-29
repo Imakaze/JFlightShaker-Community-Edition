@@ -1,0 +1,67 @@
+name: Bug report
+description: Report a reproducible problem with JFlightShaker C.E
+title: "[Bug]: "
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Start with low amplifier volume. Review logs and configuration before attaching them.
+  - type: input
+    id: version
+    attributes:
+      label: JFlightShaker version
+      placeholder: v0.5.0-beta.1
+    validations:
+      required: true
+  - type: input
+    id: windows
+    attributes:
+      label: Windows version
+      placeholder: Windows 11 24H2
+    validations:
+      required: true
+  - type: textarea
+    id: hardware
+    attributes:
+      label: HOTAS and audio hardware
+      description: Include exact models and driver versions.
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Reproduction steps
+      placeholder: |
+        1. Select...
+        2. Bind...
+        3. Press...
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior
+    validations:
+      required: true
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual behavior
+    validations:
+      required: true
+  - type: textarea
+    id: diagnostics
+    attributes:
+      label: Relevant diagnostic log
+      description: Remove personal information and paste only the relevant section.
+      render: text
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Safety and privacy checks
+      options:
+        - label: I tested at a safe, low output level.
+          required: true
+        - label: I reviewed attached logs/configuration for personal information.
+          required: true

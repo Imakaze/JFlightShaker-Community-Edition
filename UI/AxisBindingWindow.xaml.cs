@@ -131,25 +131,12 @@ public partial class AxisBindingWindow : Window
         var state = _latestState;
         if (state is null) return;
 
-        int raw = GetAxisRaw(state, axisName);
+        int raw = BindingUiHelper.GetAxisRaw(state, axisName);
         int clamped = Math.Clamp(raw, 0, 65535);
         double normalized = clamped / 65535.0;
 
         AxisInputLabel.Text = $"{axisName} | Raw {clamped} | {normalized.ToString("0.00", CultureInfo.InvariantCulture)}";
     }
-
-    private static int GetAxisRaw(JoystickState state, string axisName) => axisName switch
-    {
-        "X" => state.X,
-        "Y" => state.Y,
-        "Z" => state.Z,
-        "RotationX" => state.RotationX,
-        "RotationY" => state.RotationY,
-        "RotationZ" => state.RotationZ,
-        "Slider0" => (state.Sliders != null && state.Sliders.Length > 0) ? state.Sliders[0] : 0,
-        "Slider1" => (state.Sliders != null && state.Sliders.Length > 1) ? state.Sliders[1] : 0,
-        _ => 0
-    };
 
     protected override void OnClosed(EventArgs e)
     {

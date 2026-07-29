@@ -3,6 +3,7 @@ using JFlightShaker.Enum;
 using JFlightShaker.Service;
 using System.Globalization;
 using System.Windows;
+using System.Windows.Media;
 
 namespace JFlightShaker.UI;
 
@@ -31,7 +32,12 @@ public partial class ButtonBindingWindow : Window
         _binding = binding;
         _deviceGuid = deviceGuid;
 
-        Title = "Edit Button";
+        Title = $"{UiText.Get("Edit")} {UiText.Get("Button").TrimEnd(':')}";
+        ButtonLabel.Text = UiText.Get("Button");
+        TriggerLabel.Text = UiText.Get("Trigger");
+        ThresholdLabel.Text = UiText.Get("Threshold");
+        CancelBtn.Content = UiText.Get("Cancel");
+        SaveBtn.Content = UiText.Get("Save");
 
         ListenBtn.Click += (_, _) => ToggleListen();
         CancelBtn.Click += (_, _) => { DialogResult = false; Close(); };
@@ -46,8 +52,8 @@ public partial class ButtonBindingWindow : Window
 
         TriggerCombo.ItemsSource = new List<TriggerOption>
         {
-            new() { Trigger = TriggerType.Hold, Label = "Hold" },
-            new() { Trigger = TriggerType.Press, Label = "Trigger" }
+            new() { Trigger = TriggerType.Press, Label = UiText.Get("Press") },
+            new() { Trigger = TriggerType.Hold, Label = UiText.Get("Hold") }
         };
 
         LoadState();
@@ -73,6 +79,11 @@ public partial class ButtonBindingWindow : Window
             TriggerCombo.IsEnabled = false;
             TriggerLabel.Opacity = 0.6;
         }
+
+        bool isHighG = _binding.Effect == RumbleEffectType.HighGTurn;
+        ThresholdPanel.Visibility = isHighG ? Visibility.Visible : Visibility.Collapsed;
+        ThresholdTextBox.Text = (_binding.ActivationThreshold ?? 0.65f)
+            .ToString("0.00", CultureInfo.InvariantCulture);
     }
 
     private void ToggleListen()
@@ -87,8 +98,11 @@ public partial class ButtonBindingWindow : Window
 
     private void UpdateListenUI()
     {
-        ListenBtn.Content = _isListening ? "Listening..." : "Listen";
+        ListenBtn.Content = _isListening ? UiText.Get("Detecting") : UiText.Get("Detect");
         ListenBtn.IsEnabled = true;
+        ListenBtn.Background = _isListening
+            ? new SolidColorBrush(Color.FromRgb(230, 164, 52))
+            : SystemColors.ControlBrush;
     }
 
     private void OnButtonPressedEdge(Guid guid, int buttonIndex)
@@ -113,6 +127,21 @@ public partial class ButtonBindingWindow : Window
         }
 
         _binding.ButtonIndex = bi;
+
+        if (_binding.Effect == RumbleEffectType.HighGTurn)
+        {
+            if (!float.TryParse(
+                    ThresholdTextBox.Text,
+                    NumberStyles.Float,
+                    CultureInfo.InvariantCulture,
+                    out float threshold) ||
+                threshold < 0f || threshold > 0.95f)
+            {
+                MessageBox.Show("High-G threshold must be between 0.00 and 0.95.");
+                return;
+            }
+            _binding.ActivationThreshold = threshold;
+        }
 
         if (TriggerCombo.SelectedItem is TriggerOption option)
         {

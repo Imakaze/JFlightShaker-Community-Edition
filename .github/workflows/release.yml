@@ -1,0 +1,54 @@
+name: Publish release
+
+on:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: windows-latest
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v6
+
+      - name: Set up .NET 8
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 8.0.x
+
+      - name: Restore and test
+        run: |
+          dotnet restore JFlightShaker.sln
+          dotnet test JFlightShaker.sln -c Release --no-restore
+
+      - name: Publish self-contained application
+        shell: pwsh
+        run: |
+          $tag = "${{ github.ref_name }}"
+          $name = "JFlightShaker-CE-$tag-win-x64"
+          dotnet publish JFlightShaker.csproj -c Release --no-restore -o "artifacts/$name"
+          Copy-Item README.md, CHANGELOG.md, LICENSE, THIRD-PARTY-NOTICES.md "artifacts/$name"
+          Compress-Archive -Path "artifacts/$name/*" -DestinationPath "artifacts/$name.zip"
+          $hash = (Get-FileHash "artifacts/$name.zip" -Algorithm SHA256).Hash.ToLowerInvariant()
+          "$hash *$name.zip" | Set-Content "artifacts/SHA256SUMS.txt" -Encoding ascii
+
+      - name: Create GitHub release
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          $tag = "${{ github.ref_name }}"
+          $name = "JFlightShaker-CE-$tag-win-x64"
+          $arguments = @(
+            "release", "create", $tag,
+            "artifacts/$name.zip",
+            "artifacts/SHA256SUMS.txt",
+            "--title", "JFlightShaker C.E $tag",
+            "--generate-notes"
+          )
+          if ($tag.Contains("-")) { $arguments += "--prerelease" }
+          gh @arguments

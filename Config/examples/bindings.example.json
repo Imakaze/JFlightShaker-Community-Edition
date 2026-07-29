@@ -1,0 +1,32 @@
+[
+  {
+    "DeviceGuid": null,
+    "DeviceName": "Assign your throttle in the application",
+    "Kind": 0,
+    "AxisName": "X",
+    "AxisMin": 0.0,
+    "AxisMax": 1.0,
+    "InvertAxis": false,
+    "ButtonIndex": null,
+    "Trigger": 1,
+    "ActivationThreshold": null,
+    "Effect": 2,
+    "Intensity": 1.0,
+    "Enabled": true
+  },
+  {
+    "DeviceGuid": null,
+    "DeviceName": "Assign your stick in the application",
+    "Kind": 0,
+    "AxisName": "Pitch + Roll (X + Y)",
+    "AxisMin": 0.0,
+    "AxisMax": 1.0,
+    "InvertAxis": false,
+    "ButtonIndex": null,
+    "Trigger": 1,
+    "ActivationThreshold": null,
+    "Effect": 5,
+    "Intensity": 0.75,
+    "Enabled": true
+  }
+]

@@ -21,10 +21,12 @@ public sealed class BindingConfig
     // Button
     public int? ButtonIndex { get; set; }
     public TriggerType Trigger { get; set; } = TriggerType.Hold;
+    public float? ActivationThreshold { get; set; }
 
     // Effect
     public RumbleEffectType Effect { get; set; }
     public float Intensity { get; set; } = 1f;
+    public bool Enabled { get; set; } = true;
 
 
 }

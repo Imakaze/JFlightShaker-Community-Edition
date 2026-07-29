@@ -20,5 +20,7 @@ public sealed class BindingDefinition
 
     public RumbleEffectType Effect { get; init; } = RumbleEffectType.None;
     public float Intensity { get; init; } = 1.0f;
+    public bool Enabled { get; init; } = true;
     public TriggerType Trigger { get; init; } = TriggerType.Hold;
+    public float? ActivationThreshold { get; init; }
 }

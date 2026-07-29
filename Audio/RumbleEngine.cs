@@ -21,7 +21,8 @@ public sealed class RumbleEngine : IDisposable
     {
         Stop();
 
-        _provider = new ThrottleRumbleProvider(s.SampleRate, s.Channels, s);
+        // Stereo is required to address the left and right shakers separately.
+        _provider = new ThrottleRumbleProvider(s.SampleRate, 2, s);
         _provider.Enabled = true;
 
         _out = new WasapiOut(device, AudioClientShareMode.Shared, true, 30);
@@ -31,6 +32,11 @@ public sealed class RumbleEngine : IDisposable
 
     public void SetTargetAmplitude(float amp01)
         => _provider?.SetTargetAmplitude(Math.Clamp(amp01, 0f, 1f));
+
+    public void SetTargetAmplitudes(float left01, float right01)
+        => _provider?.SetTargetAmplitudes(
+            Math.Clamp(left01, 0f, 1f),
+            Math.Clamp(right01, 0f, 1f));
 
     public void Stop()
     {

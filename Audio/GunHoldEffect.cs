@@ -45,7 +45,10 @@ public sealed class GunHoldEffect : RumbleEffect
         float floor = Math.Clamp(Settings.Floor, 0f, 1f);
         if (shaped < floor) shaped = 0f;
 
-        return Math.Clamp(Intensity * shaped, 0f, 1f);
+        // Keep gun fire clearly above the continuous engine bed, including
+        // profiles saved with the earlier softer defaults.
+        const float aggressionBoost = 1.35f;
+        return Math.Clamp(Intensity * shaped * aggressionBoost, 0f, 1f);
     }
 
     public void Stop() => _stopped = true;

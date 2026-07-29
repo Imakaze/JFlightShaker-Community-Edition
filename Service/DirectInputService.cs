@@ -22,5 +22,15 @@ public sealed class DirectInputService : IDisposable
         return js;
     }
 
+    public Keyboard OpenKeyboard(IntPtr hwnd)
+    {
+        var keyboard = new Keyboard(_directInput);
+        keyboard.SetCooperativeLevel(
+            hwnd,
+            CooperativeLevel.Background | CooperativeLevel.NonExclusive);
+        keyboard.Acquire();
+        return keyboard;
+    }
+
     public void Dispose() => _directInput.Dispose();
 }

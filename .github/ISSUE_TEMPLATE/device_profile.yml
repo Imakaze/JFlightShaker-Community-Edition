@@ -1,0 +1,35 @@
+name: New HOTAS/device profile
+description: Provide DirectInput mappings for another device
+title: "[Device]: "
+labels: ["device-profile"]
+body:
+  - type: input
+    id: model
+    attributes:
+      label: Manufacturer and exact model
+    validations:
+      required: true
+  - type: input
+    id: driver
+    attributes:
+      label: Driver/software version
+    validations:
+      required: true
+  - type: textarea
+    id: detected
+    attributes:
+      label: Test Device results
+      description: List detected axes, buttons and POV hats. Do not include a personal GUID unless necessary.
+    validations:
+      required: true
+  - type: textarea
+    id: mapping
+    attributes:
+      label: Physical control mapping
+      description: Describe which physical control corresponds to each DirectInput value.
+    validations:
+      required: true
+  - type: textarea
+    id: notes
+    attributes:
+      label: Additional notes

@@ -1,0 +1,6 @@
+{
+  "DurationSeconds": 0.65,
+  "AttackSeconds": 0.025,
+  "DecayPower": 2.2,
+  "Punch": 0.35
+}

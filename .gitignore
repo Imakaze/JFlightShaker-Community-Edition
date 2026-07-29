@@ -1,6 +1,32 @@
+# Build output
 bin/
 obj/
+artifacts/
+publish/
+TestResults/
+*.trx
+
+# IDE and user state
 .vs/
+.vscode/*.user
 *.user
 *.suo
-Config/*.json
+
+# Runtime-generated personal configuration and logs
+/Config/appsettings.json
+/Config/bindings.json
+/Config/profiles/*.json
+/Config/Logs/
+/Config/*.broken-*.json
+/Config/profiles/*.broken-*.json
+
+# Stale root-level build output
+/*.exe
+/*.dll
+/*.pdb
+/*.deps.json
+/*.runtimeconfig.json
+
+# OS files
+Thumbs.db
+.DS_Store

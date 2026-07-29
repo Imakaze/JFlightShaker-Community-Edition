@@ -1,7 +1,8 @@
 ﻿using JFlightShaker.Config;
 using JFlightShaker.Enum;
+using JFlightShaker.Helpers;
+using JFlightShaker.Input;
 using SharpDX.DirectInput;
-using System.Globalization;
 using System.Windows;
 
 namespace JFlightShaker.UI;
@@ -27,8 +28,11 @@ public partial class EditBindingWindow : Window
     private readonly IReadOnlyList<DeviceOption> _devices;
     private readonly Func<Guid, Joystick?> _openJoystick;
     private readonly BindingConfig _binding;
+    private readonly BindingConfig _originalBinding;
     private readonly IReadOnlyList<BindingKind> _allowedKinds;
     private readonly string _defaultAxisName;
+    private readonly float _defaultHighGThreshold;
+    public bool ResetDefaultsRequested { get; private set; }
 
     public EditBindingWindow(
         IReadOnlyList<DeviceOption> devices,
@@ -36,18 +40,27 @@ public partial class EditBindingWindow : Window
         BindingConfig binding,
         IReadOnlyList<BindingKind> allowedKinds,
         string effectName,
-        string defaultAxisName
+        string defaultAxisName,
+        float defaultHighGThreshold
     )
     {
         InitializeComponent();
 
-        Title = $"Edit Binding - {effectName}";
+        Title = $"{UiText.Get("EditBinding")} - {effectName}";
+        DeviceLabel.Text = UiText.Get("Device");
+        TypeLabel.Text = UiText.Get("Type");
+        EditControlBtn.Content = UiText.Get("EditControl");
+        ResetDefaultsBtn.Content = UiText.Get("Reset");
+        CancelBtn.Content = UiText.Get("Cancel");
+        SaveBtn.Content = UiText.Get("Save");
 
         _devices = devices;
         _openJoystick = openJoystick;
         _binding = binding;
+        _originalBinding = CopyOf(binding);
         _allowedKinds = allowedKinds;
         _defaultAxisName = defaultAxisName;
+        _defaultHighGThreshold = defaultHighGThreshold;
 
         DeviceCombo.ItemsSource = _devices;
         RefreshKindOptions();
@@ -55,11 +68,7 @@ public partial class EditBindingWindow : Window
         DeviceCombo.SelectionChanged += (_, _) => OnDeviceChanged();
         KindCombo.SelectionChanged += (_, _) => OnKindChanged();
         EditControlBtn.Click += (_, _) => OnEditControl();
-
-        IntensitySlider.ValueChanged += (_, _) =>
-        {
-            IntensityValueLabel.Text = IntensitySlider.Value.ToString("0.00", CultureInfo.InvariantCulture);
-        };
+        ResetDefaultsBtn.Click += (_, _) => OnResetDefaults();
 
         CancelBtn.Click += (_, _) =>
         {
@@ -70,6 +79,69 @@ public partial class EditBindingWindow : Window
         SaveBtn.Click += (_, _) => OnSave();
 
         LoadInitialState();
+    }
+
+    protected override void OnClosed(EventArgs e)
+    {
+        if (DialogResult != true)
+        {
+            CopyTo(_originalBinding, _binding);
+            ResetDefaultsRequested = false;
+        }
+
+        base.OnClosed(e);
+    }
+
+    private static BindingConfig CopyOf(BindingConfig source)
+    {
+        var copy = new BindingConfig();
+        CopyTo(source, copy);
+        return copy;
+    }
+
+    private static void CopyTo(BindingConfig source, BindingConfig target)
+    {
+        target.DeviceGuid = source.DeviceGuid;
+        target.DeviceName = source.DeviceName;
+        target.Kind = source.Kind;
+        target.AxisName = source.AxisName;
+        target.AxisMin = source.AxisMin;
+        target.AxisMax = source.AxisMax;
+        target.InvertAxis = source.InvertAxis;
+        target.ButtonIndex = source.ButtonIndex;
+        target.Trigger = source.Trigger;
+        target.ActivationThreshold = source.ActivationThreshold;
+        target.Effect = source.Effect;
+        target.Intensity = source.Intensity;
+        target.Enabled = source.Enabled;
+    }
+
+    private void OnResetDefaults()
+    {
+        var result = MessageBox.Show(
+            "Restore the default settings for this effect?\n\nThe selected device and control will be kept.",
+            "Reset defaults",
+            MessageBoxButton.YesNo,
+            MessageBoxImage.Question);
+        if (result != MessageBoxResult.Yes) return;
+
+        _binding.Intensity = 1f;
+        _binding.Enabled = true;
+        _binding.AxisMin = _binding.Kind == BindingKind.Axis ? 0f : null;
+        _binding.AxisMax = _binding.Kind == BindingKind.Axis ? 1f : null;
+        _binding.InvertAxis = false;
+        _binding.Trigger = EffectBindingRules.GetAllowedTriggers(_binding.Effect).FirstOrDefault();
+        _binding.ActivationThreshold = _binding.Effect == RumbleEffectType.HighGTurn
+            ? _defaultHighGThreshold
+            : null;
+        ResetDefaultsRequested = true;
+
+        RefreshKindOptions();
+        MessageBox.Show(
+            "Defaults restored. Press Save to apply them.",
+            "Reset defaults",
+            MessageBoxButton.OK,
+            MessageBoxImage.Information);
     }
 
     private void LoadInitialState()
@@ -88,10 +160,6 @@ public partial class EditBindingWindow : Window
             ? _binding.Kind
             : _allowedKinds.FirstOrDefault();
         SelectKind(initialKind);
-
-        // Intensity
-        IntensitySlider.Value = Math.Clamp(_binding.Intensity, 0f, 1f);
-        IntensityValueLabel.Text = IntensitySlider.Value.ToString("0.00", CultureInfo.InvariantCulture);
 
         // Load axes for current device
         OnDeviceChanged();
@@ -139,6 +207,9 @@ public partial class EditBindingWindow : Window
         {
             BindingKind.Axis => new AxisBindingWindow(_devices, _openJoystick, _binding) { Owner = this },
 
+            BindingKind.Button when dev.Guid == InputDeviceIds.Keyboard =>
+                new KeyboardBindingWindow(_binding) { Owner = this },
+
             BindingKind.Button => new ButtonBindingWindow(
                 _binding,
                 dev.Guid
@@ -176,53 +247,7 @@ public partial class EditBindingWindow : Window
 
     private List<string> GetDeviceAxes(Guid deviceGuid)
     {
-        var js = _openJoystick(deviceGuid);
-        if (js == null) return new List<string>();
-
-        try
-        {
-            var objs = js.GetObjects();
-
-            // NOTE: On many SharpDX versions, Rotation/Slider flags aren't present.
-            // Axis flag is enough;
-            var axes = objs
-                .Where(o => (o.ObjectId.Flags & DeviceObjectTypeFlags.Axis) != 0)
-                .Select(o => o.Name)
-                .Where(n => !string.IsNullOrWhiteSpace(n))
-                .Select(n => n!)
-                .Distinct()
-                .ToList();
-
-            return axes
-                .Select(MapAxisName)
-                .Distinct()
-                .ToList();
-        }
-        catch
-        {
-            return new List<string>();
-        }
-        finally
-        {
-            js.Dispose();
-        }
-    }
-
-    private static string MapAxisName(string directInputName)
-    {
-        var n = directInputName.Trim();
-
-        if (n.Contains("X Rotation", StringComparison.OrdinalIgnoreCase)) return "RotationX";
-        if (n.Contains("Y Rotation", StringComparison.OrdinalIgnoreCase)) return "RotationY";
-        if (n.Contains("Z Rotation", StringComparison.OrdinalIgnoreCase)) return "RotationZ";
-
-        if (n.Contains("X Axis", StringComparison.OrdinalIgnoreCase)) return "X";
-        if (n.Contains("Y Axis", StringComparison.OrdinalIgnoreCase)) return "Y";
-        if (n.Contains("Z Axis", StringComparison.OrdinalIgnoreCase)) return "Z";
-
-        if (n.Contains("Slider", StringComparison.OrdinalIgnoreCase)) return "Slider0";
-
-        return n;
+        return BindingUiHelper.GetDeviceAxes(_openJoystick, deviceGuid);
     }
 
     private void OnSave()
@@ -243,8 +268,6 @@ public partial class EditBindingWindow : Window
         _binding.DeviceGuid = dev.Guid;
         _binding.DeviceName = dev.Name.Trim();
         _binding.Kind = kind.Value;
-        _binding.Intensity = (float)IntensitySlider.Value;
-
         if (kind.Value == BindingKind.Axis)
         {
             _binding.ButtonIndex = null;
@@ -280,7 +303,9 @@ public partial class EditBindingWindow : Window
             .Select(kind => new KindOption
             {
                 Kind = kind,
-                Label = kind == BindingKind.Axis ? GetAxisKindLabel() : kind.ToString()
+                Label = kind == BindingKind.Axis
+                    ? GetAxisKindLabel()
+                    : UiText.Get("Button").TrimEnd(':')
             })
             .ToList();
 
@@ -307,7 +332,7 @@ public partial class EditBindingWindow : Window
             : _binding.AxisName;
 
         axisName = string.IsNullOrWhiteSpace(axisName) ? "RotationX" : axisName;
-        return $"Axis | {axisName}";
+        return $"{UiText.Get("Axis")} | {axisName}";
     }
 
     private void ClampTrigger()

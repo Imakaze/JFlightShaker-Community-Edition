@@ -1,0 +1,17 @@
+changelog:
+  exclude:
+    labels:
+      - skip-changelog
+  categories:
+    - title: New features
+      labels:
+        - enhancement
+    - title: Device support
+      labels:
+        - device-profile
+    - title: Fixes
+      labels:
+        - bug
+    - title: Other changes
+      labels:
+        - "*"

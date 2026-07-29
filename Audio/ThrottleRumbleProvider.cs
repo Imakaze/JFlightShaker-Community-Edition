@@ -7,15 +7,19 @@ public sealed class ThrottleRumbleProvider : WaveProvider32
 {
     private readonly ThrottleSettings _s;
 
-    private float _amp;
-    private volatile float _ampTarget;
+    private float _leftAmp;
+    private float _rightAmp;
+    private volatile float _leftTarget;
+    private volatile float _rightTarget;
 
     private double _phase;
     private readonly Random _rng = new(1);
 
     // simple 1st-order high-pass state
-    private float _hpXPrev;
-    private float _hpYPrev;
+    private float _leftHpXPrev;
+    private float _leftHpYPrev;
+    private float _rightHpXPrev;
+    private float _rightHpYPrev;
 
     public bool Enabled { get; set; } = true;
 
@@ -25,11 +29,18 @@ public sealed class ThrottleRumbleProvider : WaveProvider32
         _s = settings;
     }
 
-    public void SetTargetAmplitude(float a) => _ampTarget = a;
+    public void SetTargetAmplitude(float a) => SetTargetAmplitudes(a, a);
+
+    public void SetTargetAmplitudes(float left, float right)
+    {
+        _leftTarget = left;
+        _rightTarget = right;
+    }
 
     public override int Read(float[] buffer, int offset, int sampleCount)
     {
-        float target = Enabled ? _ampTarget : 0f;
+        float leftTarget = Enabled ? _leftTarget : 0f;
+        float rightTarget = Enabled ? _rightTarget : 0f;
         int ch = WaveFormat.Channels;
         int sr = WaveFormat.SampleRate;
 
@@ -44,7 +55,8 @@ public sealed class ThrottleRumbleProvider : WaveProvider32
 
         for (int i = 0; i < sampleCount; i += ch)
         {
-            _amp += (target - _amp) * _s.AmpSmoothing;
+            _leftAmp += (leftTarget - _leftAmp) * _s.AmpSmoothing;
+            _rightAmp += (rightTarget - _rightAmp) * _s.AmpSmoothing;
 
             // sine
             _phase += (2.0 * Math.PI * baseHz) / sr;
@@ -58,16 +70,20 @@ public sealed class ThrottleRumbleProvider : WaveProvider32
             float raw = (0.8f * s) + (0.2f * noise);
 
             // amplitude envelope
-            float sig = raw * _amp;
+            float leftSignal = raw * _leftAmp;
+            float left = alpha * (_leftHpYPrev + leftSignal - _leftHpXPrev);
+            _leftHpXPrev = leftSignal;
+            _leftHpYPrev = left;
+            buffer[offset + i] = left;
 
-            // high-pass
-            float y = alpha * (_hpYPrev + sig - _hpXPrev);
-            _hpXPrev = sig;
-            _hpYPrev = y;
-
-            buffer[offset + i] = y;
             if (ch > 1)
-                buffer[offset + i + 1] = y;
+            {
+                float rightSignal = raw * _rightAmp;
+                float right = alpha * (_rightHpYPrev + rightSignal - _rightHpXPrev);
+                _rightHpXPrev = rightSignal;
+                _rightHpYPrev = right;
+                buffer[offset + i + 1] = right;
+            }
         }
 
         return sampleCount;

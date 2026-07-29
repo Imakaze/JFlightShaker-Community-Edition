@@ -10,6 +10,7 @@
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="Auto"/>
@@ -17,14 +18,28 @@
             <ColumnDefinition Width="90"/>
         </Grid.ColumnDefinitions>
 
-        <TextBlock Grid.Row="0" Grid.Column="0" Text="Button:" VerticalAlignment="Center" Margin="0,0,8,8"/>
+        <TextBlock x:Name="ButtonLabel" Grid.Row="0" Grid.Column="0" Text="Button:" VerticalAlignment="Center" Margin="0,0,8,8"/>
         <TextBox x:Name="ButtonTextBox" Grid.Row="0" Grid.Column="1" Height="28" Margin="8,0,8,8" Padding="6,0,6,0" VerticalAlignment="Center" VerticalContentAlignment="Center"/>
         <Button x:Name="ListenBtn" Grid.Row="0" Grid.Column="2" Height="28" Content="Listen" Margin="0,0,0,8"/>
 
         <TextBlock x:Name="TriggerLabel" Grid.Row="1" Grid.Column="0" Text="Trigger:" VerticalAlignment="Center" Margin="0,0,0,8"/>
         <ComboBox x:Name="TriggerCombo" Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="2" Height="28" Margin="8,0,0,8" VerticalContentAlignment="Center"/>
 
-        <StackPanel Grid.Row="2" Grid.Column="1" Grid.ColumnSpan="2" Orientation="Horizontal" HorizontalAlignment="Right">
+        <Grid x:Name="ThresholdPanel" Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="3" Margin="0,0,0,8">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <TextBlock x:Name="ThresholdLabel" Text="High-G threshold:" VerticalAlignment="Center" Margin="0,0,8,0"/>
+            <TextBox x:Name="ThresholdTextBox"
+                     Grid.Column="1"
+                     Height="28"
+                     Padding="6,0"
+                     VerticalContentAlignment="Center"
+                     ToolTip="Stick inclination from 0.00 to 0.95"/>
+        </Grid>
+
+        <StackPanel Grid.Row="3" Grid.Column="1" Grid.ColumnSpan="2" Orientation="Horizontal" HorizontalAlignment="Right">
             <Button x:Name="CancelBtn" Content="Cancel" Width="90" Height="28" Margin="0,0,8,0"/>
             <Button x:Name="SaveBtn" Content="Save" Width="90" Height="28"/>
         </StackPanel>

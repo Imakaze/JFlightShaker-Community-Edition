@@ -11,7 +11,10 @@ public enum RumbleEffectType
     None,
     Gun,
     ThrottleAxis,
-    MuteEffects
+    MuteEffects,
+    Missile,
+    PitchAndRoll,
+    HighGTurn
 }
 
 public enum TriggerType

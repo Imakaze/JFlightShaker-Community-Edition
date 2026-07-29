@@ -9,7 +9,10 @@ public static class EffectBindingRules
         return effect switch
         {
             RumbleEffectType.ThrottleAxis => new[] { BindingKind.Axis },
+            RumbleEffectType.PitchAndRoll => new[] { BindingKind.Axis },
             RumbleEffectType.Gun => new[] { BindingKind.Button },
+            RumbleEffectType.Missile => new[] { BindingKind.Button },
+            RumbleEffectType.HighGTurn => new[] { BindingKind.Button },
             RumbleEffectType.MuteEffects => new[] { BindingKind.Button },
             _ => new[] { BindingKind.Axis }
         };
@@ -23,7 +26,9 @@ public static class EffectBindingRules
         return effect switch
         {
             RumbleEffectType.Gun => new[] { TriggerType.Hold },
-            RumbleEffectType.MuteEffects => new[] { TriggerType.Hold, TriggerType.Press },
+            RumbleEffectType.Missile => new[] { TriggerType.Press },
+            RumbleEffectType.HighGTurn => new[] { TriggerType.Hold },
+            RumbleEffectType.MuteEffects => new[] { TriggerType.Press, TriggerType.Hold },
             _ => new[] { TriggerType.Hold }
         };
     }
