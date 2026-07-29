@@ -26,7 +26,7 @@ same controller.
 - X56 test profile and a generic default profile.
 - Per-effect intensity, tooltip, active indicator, preview and reset defaults.
 - Automatic DirectInput reconnection and audio-device status indicator.
-- Translation to several languajes.
+- Main interface available in Spanish, English, Catalan, French, German, Italian, Portuguese, Polish, Simplified Chinese, Japanese and Korean.
 - Automatic recovery of malformed JSON configuration with diagnostic backups.
 - Local diagnostic log; no telemetry or network communication.
 
@@ -156,7 +156,7 @@ controlador.
 - Prueba en directo de ejes, botones y POV hats.
 - Previsualización, intensidad, estado activo y restauración por efecto.
 - Reconexión automática de dispositivos.
-- Interfaz en varios idiomas.
+- Traducción al Español, inglés, catalán, francés, alemán, italiano, portugués, polaco, chino simplificado, japonés y coreano.
 - Recuperación automática de configuraciones JSON dañadas.
 - Registro local de errores, sin telemetría.
 
