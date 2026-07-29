@@ -3,7 +3,7 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:sys="clr-namespace:System;assembly=System.Runtime"
         Title="JFlightShaker C.E"
-        Icon="/Assets/JFlightCE-0.4.png"
+        Icon="/Assets/JFlightCE-Background.png"
         Width="1100"
         Height="640"
         MinWidth="920"
@@ -105,7 +105,7 @@
                     <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
                 <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                    <Image Source="/Assets/JFlightCE-Logo.png"
+                    <Image Source="/Assets/JFlightCE-Background.png"
                            Width="52"
                            Height="52"
                            Stretch="Uniform"

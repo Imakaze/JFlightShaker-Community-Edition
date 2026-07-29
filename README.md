@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="Assets/JFlightCE-Logo.png" width="420" alt="JFlightShaker Community Edition">
+  <img src="Assets/JFlightCE-Background.png" width="420" alt="JFlightShaker Community Edition">
 </p>
 
 # JFlightShaker C.E

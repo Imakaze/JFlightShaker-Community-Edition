@@ -30,10 +30,8 @@
   <ItemGroup>
     <Compile Remove="JFlightShaker.Tests/**/*.cs" />
     <Resource Include="Assets/JFlightCE-0.4.ico" />
-    <Resource Include="Assets/JFlightCE-0.4.png" />
     <Resource Include="Assets/JFlightCE-High.png" />
     <Resource Include="Assets/JFlightCE-Background.png" />
-    <Resource Include="Assets/JFlightCE-Logo.png" />
     <PackageReference Include="NAudio" Version="2.2.1" />
     <PackageReference Include="SharpDX" Version="4.2.0" />
     <PackageReference Include="SharpDX.DirectInput" Version="4.2.0" />
